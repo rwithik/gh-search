@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import searchSlice from "../features/RepoSearch/searchSlice";
+import searchSlice from "../features/RepoSearch/searchbarSlice";
 import selectedRepoSlice from "../features/RepoCard/selectedRepoSlice";
 import apiSlice from "../api";
 

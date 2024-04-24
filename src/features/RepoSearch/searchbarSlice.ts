@@ -4,9 +4,13 @@ import { RootState } from "../../app/store";
 const initialState: {
   page: number;
   searchQuery: string;
+  focusedOptionIndex: number;
+  isOpen: boolean;
 } = {
   page: 1,
   searchQuery: "",
+  focusedOptionIndex: -1,
+  isOpen: false,
 };
 
 const searchSlice = createSlice({
@@ -20,12 +24,27 @@ const searchSlice = createSlice({
     updateToNextPage(state) {
       state.page = state.page + 1;
     },
+    updateFocusedIndex(state, action: PayloadAction<number>) {
+      state.focusedOptionIndex = action.payload;
+    },
+    updateFocusToPrevItem() {},
+    updateIsOpen(state, action: PayloadAction<boolean>) {
+      state.isOpen = action.payload;
+    },
   },
 });
 
-export const { updateToNextPage, updateSearchQuery } = searchSlice.actions;
+export const {
+  updateToNextPage,
+  updateSearchQuery,
+  updateFocusedIndex,
+  updateIsOpen,
+} = searchSlice.actions;
 
 export default searchSlice.reducer;
 
 export const selectPage = (state: RootState) => state.search.page;
 export const selectSearchQuery = (state: RootState) => state.search.searchQuery;
+export const selectFocusedOptionIndex = (state: RootState) =>
+  state.search.focusedOptionIndex;
+export const selectIsOpen = (state: RootState) => state.search.isOpen;

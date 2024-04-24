@@ -1,26 +1,28 @@
-import { ChangeEvent, KeyboardEvent, memo, useState } from "react";
+import { ChangeEvent, KeyboardEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRepoSearchQuery } from "../../api";
+import searchIcon from "../../assets/icons/search.svg";
+import Input from "../../components/Input";
 import { MAX_PAGE_NUMBER } from "../../config";
+import { debounce, getOptionId } from "../../utils";
+import { updateSelectedItem } from "../RepoCard/selectedRepoSlice";
+import { ListItem } from "./ListItem";
 import {
+  selectFocusedOptionIndex,
+  selectIsOpen,
   selectPage,
   selectSearchQuery,
-  updateToNextPage,
+  updateFocusedIndex,
+  updateIsOpen,
   updateSearchQuery,
-} from "./searchSlice";
-import { updateSelectedItem } from "../RepoCard/selectedRepoSlice";
-import { debounce } from "../../utils";
-import clsx from "clsx";
-
-const getOptionId = (id: number) => {
-  return `listbox-option-${id}`;
-};
+  updateToNextPage,
+} from "./searchbarSlice";
 
 export default function RepoSearch() {
   const page = useSelector(selectPage);
   const searchQuery = useSelector(selectSearchQuery);
-  const [focusedOptionIndex, setFocusedOptionIndex] = useState<number>(-1);
-  const [isOpen, setIsOpen] = useState(false);
+  const focusedOptionIndex = useSelector(selectFocusedOptionIndex);
+  const isOpen = useSelector(selectIsOpen);
 
   const { data, isLoading, isSuccess, isError } = useRepoSearchQuery(
     { searchQuery, page, perPage: page < MAX_PAGE_NUMBER ? 8 : 4 },
@@ -30,7 +32,7 @@ export default function RepoSearch() {
 
   const handleSearchChange = debounce((e: ChangeEvent<HTMLInputElement>) => {
     dispatch(updateSearchQuery(e.target.value));
-    setIsOpen(true);
+    dispatch(updateIsOpen(true));
   });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -38,7 +40,7 @@ export default function RepoSearch() {
     switch (e.code) {
       case "ArrowDown":
         if (focusedOptionIndex === -1) {
-          setFocusedOptionIndex(0);
+          dispatch(updateFocusedIndex(0));
           document
             .getElementById(getOptionId(0))
             ?.scrollIntoView({ behavior: "smooth" });
@@ -52,14 +54,18 @@ export default function RepoSearch() {
               )
             )
             ?.scrollIntoView({ behavior: "smooth" });
-          setFocusedOptionIndex((prev) =>
-            prev === data.items.length - 1 ? 0 : prev + 1
+          dispatch(
+            updateFocusedIndex(
+              focusedOptionIndex === data.items.length - 1
+                ? 0
+                : focusedOptionIndex + 1
+            )
           );
         }
         break;
       case "ArrowUp":
         if (focusedOptionIndex === -1) {
-          setFocusedOptionIndex(data.items.length - 1);
+          dispatch(updateFocusedIndex(data.items.length - 1));
           document
             .getElementById(getOptionId(data.items.length - 1))
             ?.scrollIntoView({ behavior: "smooth" });
@@ -73,14 +79,18 @@ export default function RepoSearch() {
               )
             )
             ?.scrollIntoView({ behavior: "smooth" });
-          setFocusedOptionIndex((prev) =>
-            prev === 0 ? data.items.length - 1 : prev - 1
+          dispatch(
+            updateFocusedIndex(
+              focusedOptionIndex === 0
+                ? data.items.length - 1
+                : focusedOptionIndex - 1
+            )
           );
         }
         break;
       case "Escape":
-        setFocusedOptionIndex(-1);
-        setIsOpen(false);
+        dispatch(updateFocusedIndex(-1));
+        dispatch(updateIsOpen(false));
         break;
       case "Enter":
         dispatch(updateSelectedItem(data.items[focusedOptionIndex]));
@@ -90,12 +100,18 @@ export default function RepoSearch() {
 
   return (
     <>
-      <input
-        className="h-8 text-sm text-black border border-black bg-white w-full rounded-lg px-2"
-        placeholder="Search GitHub Repositories"
-        onChange={handleSearchChange}
-        onKeyDown={handleKeyDown}
-      />
+      <div className="w-full relative">
+        <img
+          src={searchIcon}
+          className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2"
+        />
+        <Input
+          type="search"
+          placeholder="Search GitHub Repositories"
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
       {isLoading && "Loading..."}
       {isError && "Something went wrong"}
       {isSuccess && isOpen && (
@@ -121,13 +137,11 @@ export default function RepoSearch() {
           {data.items.map((i, index) => {
             return (
               <ListItem
-                isFocused={index === focusedOptionIndex}
-                key={i.id}
-                id={index}
+                key={i.node_id}
+                index={index}
                 onClick={() => dispatch(updateSelectedItem(i))}
-                name={i.name}
+                name={i.full_name}
                 description={i.description}
-                onFocus={() => setFocusedOptionIndex(index)}
               />
             );
           })}
@@ -136,46 +150,3 @@ export default function RepoSearch() {
     </>
   );
 }
-
-const ListItem = memo(
-  ({
-    onClick,
-    name,
-    id,
-    description,
-    onFocus,
-    isFocused,
-  }: {
-    onClick: () => void;
-    name: string;
-    description?: string;
-    onFocus: () => void;
-    id: number;
-    isFocused: boolean;
-  }) => {
-    return (
-      <div
-        onClick={onClick}
-        id={getOptionId(id)}
-        role="option"
-        className={clsx(
-          "hover:text-white hover:bg-black group font-semibold cursor-pointer px-4 py-2 first:rounded-t-md last:rounded-b-md flex gap-8 items-center justify-between",
-          isFocused && "text-white bg-black"
-        )}
-        onMouseEnter={onFocus}
-      >
-        <span>{name}</span>
-        {description ? (
-          <span
-            className={clsx(
-              "text-slate-600 group-hover:text-slate-400 text-sm font-normal inline-block max-w-[50%] truncate",
-              isFocused && "!text-slate-400"
-            )}
-          >
-            {description}
-          </span>
-        ) : null}
-      </div>
-    );
-  }
-);

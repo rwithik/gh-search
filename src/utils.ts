@@ -21,3 +21,21 @@ export const copyText = async (textToCopy?: string) => {
     console.log("Failed to copy. Error: " + error);
   }
 };
+
+export const getOptionId = (id: number) => {
+  return `listbox-option-${id}`;
+};
+
+function getLocale() {
+  return navigator.languages && navigator.languages.length
+    ? navigator.languages[0]
+    : navigator.language ?? "en-IN";
+}
+
+export const shortNumber = (number: number) => {
+  const posNum = number < 0 ? -number : number;
+  if (!posNum) return "0";
+  return new Intl.NumberFormat(getLocale(), { notation: "compact" }).format(
+    number
+  );
+};

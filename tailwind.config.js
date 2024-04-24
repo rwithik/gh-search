@@ -9,6 +9,9 @@ export default {
       ...colors,
       primary: "#0046cc",
     },
+    fontFamily: {
+      sans: "Gilroy",
+    },
     extend: {},
   },
   plugins: [],
