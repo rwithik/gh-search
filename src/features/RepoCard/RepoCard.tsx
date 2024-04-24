@@ -7,18 +7,27 @@ export default function RepoCard() {
 
   if (!selectedItem) {
     return (
-      <div className="w-3/4 p-4 rounded-md border border-slate-200 text-slate-400 shadow shadow-white">
+      <div className="w-3/4 p-4 rounded-md border border-black text-slate-600 shadow shadow-white">
         Select a repo to see its details
       </div>
     );
   }
 
   return (
-    <div className="w-3/4 h-64 p-4 rounded-md border border-slate-200 shadow shadow-white flex gap-4">
-      <div className="flex flex-col basis-1/2">
+    <div className="w-full h-64 p-4 rounded-md border border-black shadow flex gap-4">
+      <div className="flex flex-col gap-2 basis-1/2">
         <h2 className="text-lg font-semibold">{selectedItem?.name}</h2>
-        <div className="flex gap-2 items-center text-sm">
-          <a className="cursor-pointer" href={selectedItem?.html_url}>
+        <span className="text-sm text-slate-600">
+          {selectedItem.stargazers_count} stars
+        </span>
+      </div>
+      <div className="basis-1/2 items-end flex flex-col justify-between text-slate-600 text-right text-sm">
+        <p>{selectedItem?.description}</p>
+        <div className="flex gap-2 mt-2 items-center text-sm text-right">
+          <a
+            className="cursor-pointer text-black underline hover:text-primary"
+            href={selectedItem?.html_url}
+          >
             Visit the repo
           </a>
           <svg
@@ -26,7 +35,7 @@ export default function RepoCard() {
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            strokeWidth="1.5"
             stroke="currentColor"
             className="w-4 h-4 cursor-pointer"
           >
@@ -39,13 +48,10 @@ export default function RepoCard() {
         </div>
         <button
           onClick={() => console.log("Deploy clicked")}
-          className="border self-start text-sm font-semibold border-white bg-white hover:bg-slate-100 text-slate-900 px-3 py-2 rounded-md mt-auto"
+          className="border self-end text-sm font-semibold border-white bg-white hover:bg-slate-100 text-slate-900 px-3 py-2 rounded-md mt-auto"
         >
           Deploy
         </button>
-      </div>
-      <div className="basis-1/2 text-slate-400">
-        {selectedItem?.description}
       </div>
     </div>
   );

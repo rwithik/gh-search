@@ -78,7 +78,7 @@ export default function RepoSearch() {
           );
         }
         break;
-      case "Esc":
+      case "Escape":
         setFocusedOptionIndex(-1);
         setIsOpen(false);
         break;
@@ -88,12 +88,10 @@ export default function RepoSearch() {
     }
   };
 
-  console.log(focusedOptionIndex);
-
   return (
     <>
       <input
-        className="h-8 text-sm w-full rounded-lg px-2"
+        className="h-8 text-sm text-black border border-black bg-white w-full rounded-lg px-2"
         placeholder="Search GitHub Repositories"
         onChange={handleSearchChange}
         onKeyDown={handleKeyDown}
@@ -103,7 +101,7 @@ export default function RepoSearch() {
       {isSuccess && isOpen && (
         <div
           tabIndex={-1}
-          className="w-full flex flex-col text-slate-100 border border-white shadow shadow-white rounded-md h-60 overflow-y-auto"
+          className="w-full flex flex-col text-slate-900 border border-black shadow  rounded-md h-60 overflow-y-auto"
           role="listbox"
           aria-activedescendant={
             focusedOptionIndex !== -1
@@ -161,14 +159,19 @@ const ListItem = memo(
         id={getOptionId(id)}
         role="option"
         className={clsx(
-          "hover:text-white hover:bg-slate-900 cursor-pointer px-4 py-2 first:rounded-t-md last:rounded-b-md flex gap-8 items-center justify-between",
-          isFocused && "text-white bg-slate-900"
+          "hover:text-white hover:bg-black group font-semibold cursor-pointer px-4 py-2 first:rounded-t-md last:rounded-b-md flex gap-8 items-center justify-between",
+          isFocused && "text-white bg-black"
         )}
         onMouseEnter={onFocus}
       >
         <span>{name}</span>
         {description ? (
-          <span className="text-slate-400 inline-block max-w-[50%] truncate">
+          <span
+            className={clsx(
+              "text-slate-600 group-hover:text-slate-400 text-sm font-normal inline-block max-w-[50%] truncate",
+              isFocused && "!text-slate-400"
+            )}
+          >
             {description}
           </span>
         ) : null}
